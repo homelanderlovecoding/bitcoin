@@ -104,6 +104,11 @@ util::Result<void> ApplyArgsManOptions(const ArgsManager& argsman, const CChainP
 
     mempool_opts.persist_v1_dat = argsman.GetBoolArg("-persistmempoolv1", mempool_opts.persist_v1_dat);
 
+    // Read required transaction patterns
+    for (const auto& pattern : argsman.GetArgs("-requiredtxpattern")) {
+        mempool_opts.required_tx_patterns.push_back(pattern);
+    }
+
     ApplyArgsManOptions(argsman, mempool_opts.limits);
 
     return {};
