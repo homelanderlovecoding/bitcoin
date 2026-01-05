@@ -12,6 +12,8 @@
 #include <chrono>
 #include <cstdint>
 #include <optional>
+#include <string>
+#include <vector>
 
 class ValidationSignals;
 
@@ -55,6 +57,8 @@ struct MemPoolOptions {
     bool require_standard{true};
     bool persist_v1_dat{DEFAULT_PERSIST_V1_DAT};
     MemPoolLimits limits{};
+    /** Array of required hex patterns that must be present in transaction for mempool acceptance */
+    std::vector<std::string> required_tx_patterns{};
 
     ValidationSignals* signals{nullptr};
 };

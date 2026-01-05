@@ -813,6 +813,28 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
         return state.Invalid(TxValidationResult::TX_NOT_STANDARD, reason);
     }
 
+    // homelander here
+    // add validation - only accept transactions containing at least one required pattern
+    if (!m_pool.m_opts.required_tx_patterns.empty()) {
+        // Serialize transaction to hex
+        DataStream ss;
+        ss << TX_WITH_WITNESS(tx);
+        std::string tx_hex = HexStr(ss);
+
+        // Check if transaction hex contains at least one of the required patterns
+        bool pattern_found = false;
+        for (const auto& required_pattern : m_pool.m_opts.required_tx_patterns) {
+            if (tx_hex.find(required_pattern) != std::string::npos) {
+                pattern_found = true;
+                break;
+            }
+        }
+
+        if (!pattern_found) {
+            return state.Invalid(TxValidationResult::TX_NOT_STANDARD, "tx-missing-required-pattern");
+        }
+    } 
+
     // Transactions smaller than 65 non-witness bytes are not relayed to mitigate CVE-2017-12842.
     if (::GetSerializeSize(TX_NO_WITNESS(tx)) < MIN_STANDARD_TX_NONWITNESS_SIZE)
         return state.Invalid(TxValidationResult::TX_NOT_STANDARD, "tx-size-small");
